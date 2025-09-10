@@ -1,0 +1,87 @@
+#include <iostream>
+#include <fstream>
+#include <map>
+using namespace std;
+
+class Menu {
+protected:
+    map<int, pair<string, int>> items;
+public:
+    Menu() {
+        items[1] = make_pair("CPU", 55000);
+        items[2] = make_pair("RAM 16GB", 6000);
+        items[3] = make_pair("SSD 1TB", 6000);
+        items[4] = make_pair("Motherboard", 15000);
+        items[5] = make_pair("Power Supply", 5000);
+        items[6] = make_pair("Graphics Card", 45000);
+        items[7] = make_pair("Monitor", 10000);
+        items[8] = make_pair("Case", 5000);
+    }
+
+    void showMenu() {
+        cout << "------ Computer Store Menu ------" << endl;
+        for (auto &item : items) {
+            cout << item.first << ". " << item.second.first << " - ₹" << item.second.second << endl;
+        }
+        cout << "--------------------------------" << endl;
+    }
+};
+
+class Billing : public Menu {
+    int total;
+    map<string, pair<int, int>> orderList;
+public:
+    Billing() {
+        total = 0;
+    }
+
+    void takeOrder() {
+        int choice, quantity;
+        while (true) {
+            cout << "Enter item number to order (0 to finish): ";
+            cin >> choice;
+            if (choice == 0) break;
+            if (items.find(choice) != items.end()) {
+                cout << "Enter quantity: ";
+                cin >> quantity;
+                string name = items[choice].first;
+                int price = items[choice].second;
+                total += price * quantity;
+                orderList[name].first += quantity;
+                orderList[name].second = price;
+                cout << "Added " << quantity << " x " << name << endl;
+            } else {
+                cout << "Invalid choice!" << endl;
+            }
+        }
+    }
+
+    void generateBill() {
+        cout << "\nGenerating Bill..." << endl;
+        ofstream file("computer_store_bill.txt");
+        file << "------ Computer Store Bill ------\n";
+        cout << "------ Computer Store Bill ------" << endl;
+        for (auto &order : orderList) {
+            string name = order.first;
+            int quantity = order.second.first;
+            int price = order.second.second;
+            int lineTotal = quantity * price;
+            file << name << " x " << quantity << " = ₹" << lineTotal << endl;
+            cout << name << " x " << quantity << " = ₹" << lineTotal << endl;
+        }
+        file << "\nTotal Amount: ₹" << total << endl;
+        file << "--------------------------------\n";
+        cout << "\nTotal Amount: ₹" << total << endl;
+        cout << "--------------------------------" << endl;
+        file.close();
+        cout << "Bill saved to 'computer_store_bill.txt'" << endl;
+    }
+};
+
+int main() {
+    Billing billing;
+    billing.showMenu();
+    billing.takeOrder();
+    billing.generateBill();
+    return 0;
+} 
